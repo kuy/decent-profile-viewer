@@ -31,9 +31,9 @@ impl Component for App {
 
   fn view(&self, _: &Context<Self>) -> Html {
     html! {
-        <BrowserRouter>
-            <Switch<Route> render={Switch::render(switch)} />
-        </BrowserRouter>
+      <BrowserRouter>
+        <Switch<Route> render={Switch::render(switch)} />
+      </BrowserRouter>
     }
   }
 }
