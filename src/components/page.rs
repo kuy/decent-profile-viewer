@@ -36,6 +36,7 @@ impl Component for Page {
           "#)}>
             <Link to={Route::Home}>{ "Home" }</Link>
             <Link to={Route::PresetIndex}>{ "Presets" }</Link>
+            <Link to={Route::About}>{ "About" }</Link>
           </div>
         </header>
         <main class="page">
@@ -43,7 +44,6 @@ impl Component for Page {
             margin: 0 auto;
             width: 1024px;
           "#)}>
-            <h1>{ "Preset List" }</h1>
             { for ctx.props().children.iter() }
           </div>
         </main>

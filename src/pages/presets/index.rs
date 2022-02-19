@@ -14,13 +14,14 @@ impl Component for PresetListPage {
 
   fn view(&self, _: &Context<Self>) -> Html {
     html! {
-        <Page title="Presets">
-            <PresetList>
-                <PresetItem>{ "1" }</PresetItem>
-                <PresetItem>{ "2" }</PresetItem>
-                <PresetItem>{ "3" }</PresetItem>
-            </PresetList>
-        </Page>
+      <Page title="Presets">
+        <h2>{ "Presets" }</h2>
+        <PresetList>
+          <PresetItem>{ "1" }</PresetItem>
+          <PresetItem>{ "2" }</PresetItem>
+          <PresetItem>{ "3" }</PresetItem>
+        </PresetList>
+      </Page>
     }
   }
 }
