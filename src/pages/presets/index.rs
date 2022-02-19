@@ -14,7 +14,7 @@ impl Component for PresetListPage {
 
   fn view(&self, _: &Context<Self>) -> Html {
     html! {
-        <Page>
+        <Page title="Presets">
             <PresetList>
                 <PresetItem>{ "1" }</PresetItem>
                 <PresetItem>{ "2" }</PresetItem>

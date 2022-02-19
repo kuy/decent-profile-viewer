@@ -28,7 +28,7 @@ impl Component for Page {
   fn view(&self, ctx: &Context<Self>) -> Html {
     html! {
       <>
-        <Title>{ "Home | Profile Viewer" }</Title>
+        <Title text={ctx.props().title.clone()} />
         <header>
           <div class={css!(r#"
             margin: 0 auto;

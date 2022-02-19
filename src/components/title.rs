@@ -1,17 +1,23 @@
-use yew::{create_portal, function_component, html, Children, Properties};
+use yew::{create_portal, function_component, html, Properties};
+
+static TITLE: &str = "Decent Profile Viewer";
 
 #[derive(Properties, PartialEq)]
 pub struct TitleProps {
   #[prop_or_default]
-  pub children: Children,
+  pub text: Option<String>,
 }
 
 #[function_component(Title)]
 pub fn title(props: &TitleProps) -> Html {
-  let content_host = gloo_utils::document()
+  let el = gloo_utils::document()
     .query_selector("head > title")
-    .expect("should exist")
+    .expect("Missing <title> element")
     .unwrap();
 
-  create_portal(html! { { for props.children.iter() } }, content_host.into())
+  if let Some(text) = &props.text {
+    create_portal(html! { format!("{} | {}", text, TITLE) }, el.into())
+  } else {
+    create_portal(html! { TITLE }, el.into())
+  }
 }
