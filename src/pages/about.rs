@@ -1,6 +1,6 @@
 use yew::{html, Component, Context, Html};
 
-use crate::components::Page;
+use crate::components::{Heading, Page};
 
 pub struct AboutPage;
 
@@ -15,7 +15,7 @@ impl Component for AboutPage {
   fn view(&self, _: &Context<Self>) -> Html {
     html! {
       <Page title="About">
-        <h2>{ "About" }</h2>
+        <Heading>{ "About" }</Heading>
         { "Hello Decent Community." }
       </Page>
     }

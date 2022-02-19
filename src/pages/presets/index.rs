@@ -1,6 +1,6 @@
 use yew::{html, Component, Context, Html};
 
-use crate::components::{Page, PresetItem, PresetList};
+use crate::components::{Heading, Page, PresetItem, PresetList};
 
 pub struct PresetListPage;
 
@@ -15,7 +15,7 @@ impl Component for PresetListPage {
   fn view(&self, _: &Context<Self>) -> Html {
     html! {
       <Page title="Presets">
-        <h2>{ "Presets" }</h2>
+        <Heading>{ "Presets" }</Heading>
         <PresetList>
           <PresetItem>{ "1" }</PresetItem>
           <PresetItem>{ "2" }</PresetItem>
