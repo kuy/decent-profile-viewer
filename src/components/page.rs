@@ -1,9 +1,5 @@
-use stylist::css;
-use yew::html;
-use yew::{function_component, Children, Classes, Component, Context, Html, Properties};
-use yew_router::components::{Link as LinkBase, LinkProps};
-
-use crate::components::Title;
+use crate::components::{Link, Logo, Title};
+use crate::prelude::*;
 use crate::Route;
 
 #[derive(Properties, PartialEq)]
@@ -31,10 +27,21 @@ impl Component for Page {
         <Title text={ctx.props().title.clone()} />
         <header>
           <div class={css!(r#"
+            display: flex;
             margin: 0 auto;
             width: 1024px;
+            align-items: center;
+
+            a {
+              margin: 4px 14px 0;
+            }
+
+            /* Logo */
+            a.logo {
+              margin: 0 28px 0 0;
+            }
           "#)}>
-            <Link to={Route::Home}>{ "Home" }</Link>
+            <Logo to={Route::Home} />
             <Link to={Route::PresetIndex}>{ "Presets" }</Link>
             <Link to={Route::About}>{ "About" }</Link>
           </div>
@@ -50,23 +57,4 @@ impl Component for Page {
       </>
     }
   }
-}
-
-#[function_component(Link)]
-fn link(props: &LinkProps<Route>) -> Html {
-  html! {
-    <LinkBase<Route> to={props.to.clone()} classes={link_style_value()}>
-      { for props.children.iter() }
-    </LinkBase<Route>>
-  }
-}
-
-fn link_style_value() -> Classes {
-  css!(
-    r#"
-    color: black;
-    text-decoration: none;
-  "#
-  )
-  .into()
 }

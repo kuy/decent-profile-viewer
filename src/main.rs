@@ -3,6 +3,7 @@ use yew_router::prelude::*;
 
 mod components;
 mod pages;
+mod prelude;
 
 use pages::{AboutPage, NotFoundPage, PresetListPage};
 
