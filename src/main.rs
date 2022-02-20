@@ -5,21 +5,7 @@ mod components;
 mod lib;
 mod pages;
 mod prelude;
-
-use pages::{AboutPage, NotFoundPage, PresetListPage};
-
-#[derive(Clone, Routable, PartialEq)]
-pub enum Route {
-  #[at("/")]
-  Home,
-  #[at("/presets")]
-  PresetIndex,
-  #[at("/about")]
-  About,
-  #[not_found]
-  #[at("/404")]
-  NotFound,
-}
+mod routes;
 
 struct App;
 
@@ -34,21 +20,13 @@ impl Component for App {
   fn view(&self, _: &Context<Self>) -> Html {
     html! {
       <BrowserRouter>
-        <Switch<Route> render={Switch::render(switch)} />
+        <Switch<routes::Route> render={Switch::render(routes::switch)} />
       </BrowserRouter>
     }
   }
 }
 
-fn switch(routes: &Route) -> Html {
-  match routes {
-    Route::Home => html! { <Redirect<Route> to={Route::PresetIndex} /> },
-    Route::PresetIndex => html! { <PresetListPage /> },
-    Route::About => html! { <AboutPage /> },
-    Route::NotFound => html! { <NotFoundPage /> },
-  }
-}
-
 fn main() {
+  wasm_logger::init(wasm_logger::Config::default());
   yew::start_app::<App>();
 }

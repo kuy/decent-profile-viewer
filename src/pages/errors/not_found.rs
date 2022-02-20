@@ -1,6 +1,4 @@
-use yew::{html, Component, Context, Html};
-
-use crate::components::Page;
+use crate::prelude::*;
 
 pub struct NotFoundPage;
 

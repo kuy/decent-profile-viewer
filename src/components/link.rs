@@ -2,18 +2,18 @@ use yew::Classes;
 use yew_router::components::{Link as YewLink, LinkProps};
 
 use crate::prelude::*;
-use crate::Route;
+use crate::routes::Route;
 
 #[function_component(Link)]
 pub fn link(props: &LinkProps<Route>) -> Html {
   html! {
-    <YewLink<Route> to={props.to.clone()} classes={link_style_value()}>
+    <YewLink<Route> to={props.to.clone()} classes={styles()}>
       { for props.children.iter() }
     </YewLink<Route>>
   }
 }
 
-fn link_style_value() -> Classes {
+pub fn styles() -> Classes {
   css!(
     r#"
     color: black;

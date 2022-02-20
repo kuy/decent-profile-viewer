@@ -1,6 +1,5 @@
-use yew::{html, Component, Context, Html};
-
-use crate::components::{Heading, Page};
+use crate::components::Heading;
+use crate::prelude::*;
 
 pub struct AboutPage;
 

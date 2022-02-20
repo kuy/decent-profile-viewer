@@ -1,6 +1,6 @@
-use crate::components::{Link, Logo, Title};
+use crate::components::{Logo, Title};
 use crate::prelude::*;
-use crate::Route;
+use crate::routes::Route;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
