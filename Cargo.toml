@@ -1,10 +1,15 @@
 [package]
 name = "decent-profile-viewer"
 version = "0.1.0"
+authors = ["Yuki Kodama <endflow.net@gmail.com>"]
+license = "MIT"
 edition = "2021"
 
 [dependencies]
+gloo-utils = "0.1.2"
+nom = "7.1.0"
+once_cell = "1.9.0"
+stylist = { version = "0.10.0", features = ["yew"] }
 yew = "0.19.3"
 yew-router = "0.16.0"
-stylist = { version = "0.10.0", features = ["yew"] }
-gloo-utils = "0.1.2"
+include_dir = "0.7.2"

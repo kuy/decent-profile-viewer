@@ -1,4 +1,5 @@
 use crate::components::{Heading, Page, PresetItem, PresetList};
+use crate::lib::profile::PROFILES;
 use crate::prelude::*;
 
 pub struct PresetListPage;
@@ -15,11 +16,11 @@ impl Component for PresetListPage {
     html! {
       <Page title="Presets">
         <Heading>{ "Presets" }</Heading>
-        <PresetList>
-          <PresetItem>{ "1" }</PresetItem>
-          <PresetItem>{ "2" }</PresetItem>
-          <PresetItem>{ "3" }</PresetItem>
-        </PresetList>
+        <ul>
+          { PROFILES.iter().map(|(_, preset)| {
+            html!{ <li>{ format!("{}", &preset.title) }</li> }
+          }).collect::<Html>() }
+        </ul>
       </Page>
     }
   }
