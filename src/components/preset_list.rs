@@ -1,12 +1,9 @@
-use yew::ChildrenWithProps;
-
-use crate::components::PresetItem;
 use crate::prelude::*;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
   #[prop_or_default]
-  pub children: ChildrenWithProps<PresetItem>,
+  pub items: Vec<Html>,
 }
 
 pub struct PresetList;
@@ -21,8 +18,10 @@ impl Component for PresetList {
 
   fn view(&self, ctx: &Context<Self>) -> Html {
     html! {
-        <ul>
-            { for ctx.props().children.iter() }
+        <ul class={css!(r#"
+          padding-inline: 0;
+        "#)}>
+            { ctx.props().items.clone() }
         </ul>
     }
   }

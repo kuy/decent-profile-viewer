@@ -16,11 +16,12 @@ impl Component for PresetListPage {
     html! {
       <Page title="Presets">
         <Heading>{ "Presets" }</Heading>
-        <ul>
-          { PROFILES.iter().map(|(_, preset)| {
-            html!{ <li>{ format!("{}", &preset.title) }</li> }
-          }).collect::<Html>() }
-        </ul>
+        <PresetList items={PROFILES
+          .iter()
+          .map(|(_, preset)| {
+            html! { <PresetItem>{ format!("{}", &preset.title) }</PresetItem> }
+          })
+          .collect::<Vec<Html>>()} />
       </Page>
     }
   }

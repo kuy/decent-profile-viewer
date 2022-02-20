@@ -6,7 +6,7 @@ pub struct Props {
   pub children: Children,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct PresetItem;
 
 impl Component for PresetItem {
@@ -19,7 +19,9 @@ impl Component for PresetItem {
 
   fn view(&self, ctx: &Context<Self>) -> Html {
     html! {
-        <li>
+        <li class={css!(r#"
+          list-style-type: none;
+        "#)}>
             { for ctx.props().children.iter() }
         </li>
     }
