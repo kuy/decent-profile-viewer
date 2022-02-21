@@ -6,16 +6,16 @@ use crate::routes::Route;
 
 #[function_component(Link)]
 pub fn link(props: &LinkProps<Route>) -> Html {
-  html! {
-    <YewLink<Route> to={props.to.clone()} classes={styles()}>
-      { for props.children.iter() }
-    </YewLink<Route>>
-  }
+    html! {
+      <YewLink<Route> to={props.to.clone()} classes={styles()}>
+        { for props.children.iter() }
+      </YewLink<Route>>
+    }
 }
 
 pub fn styles() -> Classes {
-  css!(
-    r#"
+    css!(
+        r#"
     color: black;
     text-decoration: none;
     transition: 0.4s;
@@ -24,6 +24,6 @@ pub fn styles() -> Classes {
         color: #404040;
     }
   "#
-  )
-  .into()
+    )
+    .into()
 }

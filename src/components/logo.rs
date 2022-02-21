@@ -5,24 +5,24 @@ use crate::routes::Route;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-  pub to: Route,
+    pub to: Route,
 }
 
 #[derive(PartialEq)]
 pub struct Logo;
 
 impl Component for Logo {
-  type Message = ();
-  type Properties = Props;
+    type Message = ();
+    type Properties = Props;
 
-  fn create(_: &Context<Self>) -> Self {
-    Self
-  }
+    fn create(_: &Context<Self>) -> Self {
+        Self
+    }
 
-  fn view(&self, ctx: &Context<Self>) -> Html {
-    html! {
-        <Link<Route> to={ctx.props().to.clone()} classes="logo">
-            <img src={ "/logo.png" } class={css!(r#"
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        html! {
+            <Link<Route> to={ctx.props().to.clone()} classes="logo">
+                <img src={ "/logo.png" } class={css!(r#"
                 width: 64px;
                 height: 64px;
 
@@ -32,7 +32,7 @@ impl Component for Logo {
                     opacity: 0.8;
                 }
             "#)} />
-        </Link<Route>>
+            </Link<Route>>
+        }
     }
-  }
 }
