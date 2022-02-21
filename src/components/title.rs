@@ -16,8 +16,8 @@ pub fn title(props: &TitleProps) -> Html {
         .unwrap();
 
     if let Some(text) = &props.text {
-        create_portal(html! { format!("{} | {}", text, TITLE) }, el.into())
+        create_portal(html! { format!("{} | {}", text, TITLE) }, el)
     } else {
-        create_portal(html! { TITLE }, el.into())
+        create_portal(html! { TITLE }, el)
     }
 }

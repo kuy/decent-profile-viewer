@@ -19,7 +19,7 @@ impl Component for PresetListPage {
             <PresetList items={PROFILES
               .iter()
               .map(|(name, preset)| {
-                html! { <PresetItem name={name.clone()}>{ format!("{}", &preset.title) }</PresetItem> }
+                html! { <PresetItem name={name.clone()}>{ preset.title.as_str() }</PresetItem> }
               })
               .collect::<Vec<Html>>()} />
           </Page>

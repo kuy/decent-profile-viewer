@@ -18,14 +18,14 @@ pub static PROFILES: Lazy<HashMap<String, Preset>> = Lazy::new(|| {
         let data = file.contents_utf8().unwrap().to_string();
 
         // filter by "Advanced" profile (settings_2c)
-        if data.find("settings_2c").is_none() {
+        if !data.contains("settings_2c") {
             continue;
         }
 
         for line in data.lines() {
             if line.starts_with("advanced_shot") {
                 let end = line.len() - 1;
-                preset.data = format!("{}\n", line[15..end].to_string());
+                preset.data = format!("{}\n", line[15..end].to_owned());
             } else if line.starts_with("profile_title") {
                 if let Ok((_, Prop::Unknown((_, title)))) = parse_title(line.as_bytes()) {
                     preset.title = title;
@@ -50,7 +50,7 @@ pub struct Preset {
 
 pub type PositionList = Vec<(f64, f64, f64, f64)>;
 
-pub fn analyze(steps: &Vec<Step>) -> (PositionList, PositionList, PositionList, f64) {
+pub fn analyze(steps: &[Step]) -> (PositionList, PositionList, PositionList, f64) {
     let mut temperature_pos: PositionList = vec![];
     let mut last_temperature_pos: Option<(f64, f64, f64, f64)> = None;
 
@@ -79,7 +79,7 @@ pub fn analyze(steps: &Vec<Step>) -> (PositionList, PositionList, PositionList, 
                     } else {
                         temperature_pos.push((elapsed_time, t, elapsed_time + duration, t));
                     }
-                    last_temperature_pos = Some(temperature_pos.last().unwrap().clone());
+                    last_temperature_pos = Some(*temperature_pos.last().unwrap());
                 }
                 Prop::Pressure(v) => {
                     if pump == PumpType::Pressure {
@@ -87,7 +87,7 @@ pub fn analyze(steps: &Vec<Step>) -> (PositionList, PositionList, PositionList, 
                             (prev_pump, last_flow_pos)
                         {
                             flow_pos.push((px, py, px, 0.));
-                            last_flow_pos = Some(flow_pos.last().unwrap().clone());
+                            last_flow_pos = Some(*flow_pos.last().unwrap());
                         }
 
                         let v = *v as f64;
@@ -116,7 +116,7 @@ pub fn analyze(steps: &Vec<Step>) -> (PositionList, PositionList, PositionList, 
                             pressure_pos.push((elapsed_time, v, elapsed_time + duration, v));
                         }
 
-                        last_pressure_pos = Some(pressure_pos.last().unwrap().clone());
+                        last_pressure_pos = Some(*pressure_pos.last().unwrap());
                     }
                 }
                 Prop::Flow(v) => {
@@ -125,7 +125,7 @@ pub fn analyze(steps: &Vec<Step>) -> (PositionList, PositionList, PositionList, 
                             (prev_pump, last_pressure_pos)
                         {
                             pressure_pos.push((px, py, px, 0.));
-                            last_pressure_pos = Some(pressure_pos.last().unwrap().clone());
+                            last_pressure_pos = Some(*pressure_pos.last().unwrap());
                         }
 
                         let v = *v as f64;
@@ -155,7 +155,7 @@ pub fn analyze(steps: &Vec<Step>) -> (PositionList, PositionList, PositionList, 
                             flow_pos.push((elapsed_time, v, elapsed_time + duration, v));
                         }
 
-                        last_flow_pos = Some(flow_pos.last().unwrap().clone());
+                        last_flow_pos = Some(*flow_pos.last().unwrap());
                     }
                 }
                 _ => (),

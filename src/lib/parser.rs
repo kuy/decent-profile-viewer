@@ -198,10 +198,7 @@ impl Step {
     }
 
     pub fn seconds(&self) -> f32 {
-        let prop = self.0.iter().find(|prop| match prop {
-            Prop::Seconds(_) => true,
-            _ => false,
-        });
+        let prop = self.0.iter().find(|prop| matches!(prop, Prop::Seconds(_)));
         match prop {
             Some(Prop::Seconds(v)) => *v,
             _ => panic!("not found: seconds"),
@@ -209,10 +206,7 @@ impl Step {
     }
 
     pub fn pump(&self) -> PumpType {
-        let prop = self.0.iter().find(|prop| match prop {
-            Prop::Pump(_) => true,
-            _ => false,
-        });
+        let prop = self.0.iter().find(|prop| matches!(prop, Prop::Seconds(_)));
         match prop {
             Some(Prop::Pump(v)) => *v,
             _ => panic!("not found: pump"),
@@ -356,7 +350,7 @@ pub fn prop_string(name: &str) -> impl Fn(&[u8]) -> IResult<&[u8], Prop> {
         let (i, (_, _, val)) = tuple((tag(name.as_bytes()), space1, string_val))(i)?;
         let prop = match name.as_str() {
             "name" => Prop::Name(val),
-            _ => Prop::Unknown((name.clone(), format!("{}", val))),
+            _ => Prop::Unknown((name.clone(), val)),
         };
         Ok((i, prop))
     }
