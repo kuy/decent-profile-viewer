@@ -2,7 +2,6 @@ use yew::Classes;
 use yew_router::components::{Link as YewLink, LinkProps};
 
 use crate::prelude::*;
-use crate::routes::Route;
 
 #[function_component(Link)]
 pub fn link(props: &LinkProps<Route>) -> Html {
