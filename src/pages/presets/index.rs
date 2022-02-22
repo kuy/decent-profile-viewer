@@ -1,4 +1,4 @@
-use crate::components::{Heading, PresetItem, PresetList};
+use crate::components::{Content, Heading, PresetItem, PresetList};
 use crate::lib::profile::PROFILES;
 use crate::prelude::*;
 
@@ -16,12 +16,14 @@ impl Component for PresetListPage {
         html! {
           <Page title="Presets">
             <Heading>{ "Presets" }</Heading>
-            <PresetList items={PROFILES
-              .iter()
-              .map(|(name, preset)| {
-                html! { <PresetItem name={name.clone()}>{ preset.title.as_str() }</PresetItem> }
-              })
-              .collect::<Vec<Html>>()} />
+            <Content>
+              <PresetList items={PROFILES
+                .iter()
+                .map(|(name, preset)| {
+                  html! { <PresetItem name={name.clone()}>{ preset.title.as_str() }</PresetItem> }
+                })
+                .collect::<Vec<Html>>()} />
+            </Content>
           </Page>
         }
     }

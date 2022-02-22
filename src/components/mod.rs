@@ -1,3 +1,4 @@
+mod content;
 mod heading;
 mod link;
 mod logo;
@@ -6,6 +7,7 @@ mod preset_item;
 mod preset_list;
 mod title;
 
+pub use content::Content;
 pub use heading::Heading;
 pub use link::Link;
 pub use logo::Logo;

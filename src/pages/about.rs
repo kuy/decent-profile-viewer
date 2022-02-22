@@ -1,4 +1,4 @@
-use crate::components::Heading;
+use crate::components::{Content, Heading};
 use crate::prelude::*;
 
 pub struct AboutPage;
@@ -13,10 +13,12 @@ impl Component for AboutPage {
 
     fn view(&self, _: &Context<Self>) -> Html {
         html! {
-          <Page title="About">
-            <Heading>{ "About" }</Heading>
-            { "Hello Decent Community." }
-          </Page>
+            <Page title="About">
+                <Heading>{ "About" }</Heading>
+                <Content>
+                    { "Hello Decent Community." }
+                </Content>
+            </Page>
         }
     }
 }

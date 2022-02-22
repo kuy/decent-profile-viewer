@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use yew_router::components::Link as YewLink;
 
+use crate::components::link::styles;
 use crate::prelude::*;
 
 #[derive(Properties, PartialEq)]
@@ -33,9 +34,9 @@ impl Component for PresetItem {
         });
         html! {
             <li class={css!(r#"
-          list-style-type: none;
-        "#)}>
-                <YewLink<Route, PresetQuery> to={Route::Viewer} {query}>
+                list-style-type: none;
+            "#)}>
+                <YewLink<Route, PresetQuery> to={Route::Viewer} {query} classes={styles()}>
                   { for ctx.props().children.iter() }
                 </YewLink<Route, PresetQuery>>
             </li>

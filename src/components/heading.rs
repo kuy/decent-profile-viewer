@@ -21,9 +21,9 @@ impl Component for Heading {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <h1 class={css!(r#"
-          font-weight: 400;
-          font-size: 24px;
-        "#)}>
+                font-weight: 400;
+                font-size: 24px;
+            "#)}>
                 { for ctx.props().children.iter() }
             </h1>
         }
