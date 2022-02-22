@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
 use include_dir::{include_dir, Dir};
 use once_cell::sync::Lazy;
+use std::collections::HashMap;
 
 use crate::lib::parser::{prop_string, Prop, PumpType, Step, TransitionType};
 
@@ -48,9 +47,17 @@ pub struct Preset {
     pub data: String,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct AnalyzedProfile {
+    pub temperature: PositionList,
+    pub pressure: PositionList,
+    pub flow: PositionList,
+    pub elapsed_time: f64,
+}
+
 pub type PositionList = Vec<(f64, f64, f64, f64)>;
 
-pub fn analyze(steps: &[Step]) -> (PositionList, PositionList, PositionList, f64) {
+pub fn analyze(steps: &[Step]) -> AnalyzedProfile {
     let mut temperature_pos: PositionList = vec![];
     let mut last_temperature_pos: Option<(f64, f64, f64, f64)> = None;
 
@@ -167,5 +174,10 @@ pub fn analyze(steps: &[Step]) -> (PositionList, PositionList, PositionList, f64
         prev_exit_flow = step.exit_flow();
     }
 
-    (temperature_pos, pressure_pos, flow_pos, elapsed_time)
+    AnalyzedProfile {
+        temperature: temperature_pos,
+        pressure: pressure_pos,
+        flow: flow_pos,
+        elapsed_time,
+    }
 }

@@ -206,7 +206,7 @@ impl Step {
     }
 
     pub fn pump(&self) -> PumpType {
-        let prop = self.0.iter().find(|prop| matches!(prop, Prop::Seconds(_)));
+        let prop = self.0.iter().find(|prop| matches!(prop, Prop::Pump(_)));
         match prop {
             Some(Prop::Pump(v)) => *v,
             _ => panic!("not found: pump"),

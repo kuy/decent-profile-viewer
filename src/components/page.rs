@@ -46,11 +46,11 @@ impl Component for Page {
                 <Link to={Route::About}>{ "About" }</Link>
               </div>
             </header>
-            <main class="page">
+            <main>
               <div class={css!(r#"
-            margin: 0 auto;
-            width: 1024px;
-          "#)}>
+                margin: 16px auto 0;
+                width: 1024px;
+              "#)}>
                 { for ctx.props().children.iter() }
               </div>
             </main>
