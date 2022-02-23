@@ -19,16 +19,10 @@ jobs:
         with:
           credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
 
-      # - uses: "google-github-actions/setup-gcloud@v0"
-
       - uses: hashicorp/setup-terraform@v1
 
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Plan
-        run: terraform plan -no-color
-        continue-on-error: true
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - name: Terraform
+        run: |
+          terraform init
+          terraform plan -no-color
+          terraform apply -auto-approve

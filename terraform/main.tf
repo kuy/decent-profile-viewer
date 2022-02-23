@@ -13,8 +13,8 @@ provider "google" {
   zone    = "us-central1-c"
 }
 
-resource "google_cloud_run_service" "profile-viewer-api" {
-  name     = "profile-viewer-api"
+resource "google_cloud_run_service" "profile-viewer-apix" {
+  name     = "profile-viewer-apix"
   location = "us-central1"
 
   template {
@@ -35,19 +35,19 @@ resource "google_cloud_run_service" "profile-viewer-api" {
   }
 }
 
-data "google_iam_policy" "noauth" {
-  binding {
-    role = "roles/run.invoker"
-    members = [
-      "allUsers",
-    ]
-  }
-}
+# data "google_iam_policy" "noauth" {
+#   binding {
+#     role = "roles/run.invoker"
+#     members = [
+#       "allUsers",
+#     ]
+#   }
+# }
 
-resource "google_cloud_run_service_iam_policy" "noauth" {
-  location = google_cloud_run_service.profile-viewer-api.location
-  project  = google_cloud_run_service.profile-viewer-api.project
-  service  = google_cloud_run_service.profile-viewer-api.name
+# resource "google_cloud_run_service_iam_policy" "noauth" {
+#   location = google_cloud_run_service.profile-viewer-api.location
+#   project  = google_cloud_run_service.profile-viewer-api.project
+#   service  = google_cloud_run_service.profile-viewer-api.name
 
-  policy_data = data.google_iam_policy.noauth.policy_data
-}
+#   policy_data = data.google_iam_policy.noauth.policy_data
+# }
