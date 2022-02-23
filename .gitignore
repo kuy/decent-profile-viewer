@@ -9,3 +9,4 @@
 *.tfstate.*
 *.tfvars
 *.tfvars.json
+override.tf

@@ -8,8 +8,6 @@ terraform {
 }
 
 provider "google" {
-  credentials = file("~/.config/gcp-sa/cropd-prj-8995ab21aa87.json")
-
   project = "cropd-prj"
   region  = "us-central1"
   zone    = "us-central1-c"
