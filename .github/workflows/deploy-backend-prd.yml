@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - "backend-prd"
-    paths:
-      - backend/**
 
 jobs:
   build:
