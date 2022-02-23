@@ -9,9 +9,6 @@ jobs:
   build:
     name: Build and Push
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - uses: actions/checkout@v2
 
@@ -30,6 +27,7 @@ jobs:
           image_name: profile-viewer-api
           image_tag: ${{ steps.vars.outputs.ga_commit_sha }}
           dockerfile: backend/Dockerfile
+          context: ./backend
 
   deploy:
     name: Deploy
