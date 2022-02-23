@@ -11,6 +11,9 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
