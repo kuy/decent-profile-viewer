@@ -44,7 +44,7 @@ jobs:
         uses: sergeysova/jq-action@v2.1.0
         id: tfvars-file
         with:
-          cmd: jq '.backend.image_tag|="${{ steps.vars.outputs.ga_commit_sha }}"' terraform/prd.tfvars.json -r'
+          cmd: jq '.backend.image_tag|="${{ steps.vars.outputs.ga_commit_sha }}"' terraform/prd.tfvars.json -r
           multiline: true
 
       - name: Update tfvars file
