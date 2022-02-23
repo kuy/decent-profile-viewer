@@ -20,9 +20,13 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          override: true
+
+      - uses: Swatinem/rust-cache@v1
 
       - name: Check
         run: |
+          cargo fmt --check
           cargo check
           cargo clippy
 
