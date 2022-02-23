@@ -14,9 +14,4 @@ jobs:
       - uses: hashicorp/setup-terraform@v1
 
       - name: Terraform Validate
-        id: validate
         run: terraform validate -no-color
-
-      - run: echo ${{ steps.validate.outputs.stdout }}
-      - run: echo ${{ steps.validate.outputs.stderr }}
-      - run: echo ${{ steps.validate.outputs.exitcode }}

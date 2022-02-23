@@ -5,14 +5,23 @@ terraform {
       version = "4.11.0"
     }
   }
+
+  backend "gcs" {
+    bucket = "cropd-tf-state"
+    prefix = "prd"
+  }
 }
 
 provider "google" {
-  credentials = file("~/.config/gcp-sa/cropd-prj-8995ab21aa87.json")
-
   project = "cropd-prj"
   region  = "us-central1"
   zone    = "us-central1-c"
+}
+
+resource "google_storage_bucket" "tf-state" {
+  name          = "cropd-tf-state"
+  location      = "us-central1"
+  storage_class = "REGIONAL"
 }
 
 resource "google_cloud_run_service" "profile-viewer-api" {
