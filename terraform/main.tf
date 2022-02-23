@@ -5,6 +5,11 @@ terraform {
       version = "4.11.0"
     }
   }
+
+  backend "gcs" {
+    bucket = "cropd-tf-state"
+    prefix = "prd"
+  }
 }
 
 provider "google" {
@@ -13,8 +18,14 @@ provider "google" {
   zone    = "us-central1-c"
 }
 
-resource "google_cloud_run_service" "profile-viewer-apix" {
-  name     = "profile-viewer-apix"
+resource "google_storage_bucket" "tf-state" {
+  name          = "cropd-tf-state"
+  location      = "us-central1"
+  storage_class = "REGIONAL"
+}
+
+resource "google_cloud_run_service" "profile-viewer-api" {
+  name     = "profile-viewer-api"
   location = "us-central1"
 
   template {
@@ -35,19 +46,19 @@ resource "google_cloud_run_service" "profile-viewer-apix" {
   }
 }
 
-# data "google_iam_policy" "noauth" {
-#   binding {
-#     role = "roles/run.invoker"
-#     members = [
-#       "allUsers",
-#     ]
-#   }
-# }
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
 
-# resource "google_cloud_run_service_iam_policy" "noauth" {
-#   location = google_cloud_run_service.profile-viewer-api.location
-#   project  = google_cloud_run_service.profile-viewer-api.project
-#   service  = google_cloud_run_service.profile-viewer-api.name
+resource "google_cloud_run_service_iam_policy" "noauth" {
+  location = google_cloud_run_service.profile-viewer-api.location
+  project  = google_cloud_run_service.profile-viewer-api.project
+  service  = google_cloud_run_service.profile-viewer-api.name
 
-#   policy_data = data.google_iam_policy.noauth.policy_data
-# }
+  policy_data = data.google_iam_policy.noauth.policy_data
+}
