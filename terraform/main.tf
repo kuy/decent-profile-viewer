@@ -24,9 +24,14 @@ resource "google_storage_bucket" "tf-state" {
   storage_class = "REGIONAL"
 }
 
-variable "backend_image_tag" {
-  type    = string
-  default = ["v3"]
+variable "backend" {
+  type = object({
+    image_tag = string
+  })
+
+  default = {
+    image_tag : "v3"
+  }
 }
 
 resource "google_cloud_run_service" "profile-viewer-api" {
@@ -36,7 +41,7 @@ resource "google_cloud_run_service" "profile-viewer-api" {
   template {
     spec {
       containers {
-        image = "gcr.io/cropd-prj/profile-viewer-api:${var.backend_image_tag}"
+        image = "gcr.io/cropd-prj/profile-viewer-api:${var.backend.image_tag}"
         ports {
           container_port = 3000
         }
