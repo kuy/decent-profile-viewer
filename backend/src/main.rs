@@ -22,5 +22,5 @@ async fn root() -> &'static str {
 }
 
 async fn hello() -> &'static str {
-    "World!"
+    "World!!"
 }
