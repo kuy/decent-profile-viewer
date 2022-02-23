@@ -57,3 +57,6 @@ jobs:
           branch: infra-prd
           push_options: "--force"
           skip_checkout: true
+
+      - name: Run deploy workflow
+        uses: kuy/decent-profile-viewer/.github/workflows/apply-tf-prd.yml@main
