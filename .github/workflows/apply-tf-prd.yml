@@ -2,6 +2,9 @@ name: Apply Terraform [prd]
 
 on:
   workflow_call:
+    secrets:
+      gcp_creds:
+        required: true
 
 jobs:
   apply:
@@ -17,7 +20,7 @@ jobs:
 
       - uses: "google-github-actions/auth@v0"
         with:
-          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+          credentials_json: "${{ secrets.gcp_creds }}"
 
       - uses: hashicorp/setup-terraform@v1
 

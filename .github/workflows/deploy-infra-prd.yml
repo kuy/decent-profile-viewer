@@ -8,3 +8,5 @@ on:
 jobs:
   deploy:
     uses: ./.github/workflows/apply-tf-prd.yml
+    secrets:
+      gcp_creds: ${{ secrets.GOOGLE_CREDENTIALS }}

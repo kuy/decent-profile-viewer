@@ -61,3 +61,5 @@ jobs:
   deploy:
     needs: commit
     uses: ./.github/workflows/apply-tf-prd.yml
+    secrets:
+      gcp_creds: ${{ secrets.GOOGLE_CREDENTIALS }}
