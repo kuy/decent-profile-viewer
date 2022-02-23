@@ -49,7 +49,7 @@ jobs:
 
       - name: Update tfvars file
         run: |
-          echo ${{ steps.tfvars-file.outputs.value }} > temp.json
+          echo "${{ steps.tfvars-file.outputs.value }}" > temp.json
           mv -f temp.json terraform/prd.tfvars.json
 
       - name: Commit and push
