@@ -24,7 +24,7 @@ jobs:
       - name: Build and push to GCR
         uses: RafikFarhad/push-to-gcr-github-action@v4
         with:
-          gcloud_service_key: ${{ secrets.GOOGLE_CREDENTIALS }}
+          gcloud_service_key: ${{ secrets.GOOGLE_CREDENTIALS_BASE64 }}
           project_id: cropd-prj
           registry: gcr.io
           image_name: profile-viewer-api
