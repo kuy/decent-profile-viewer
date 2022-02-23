@@ -1,0 +1,22 @@
+name: Check Terraform files
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - run: echo ${{ steps.validate.outputs.stdout }}
+      - run: echo ${{ steps.validate.outputs.stderr }}
+      - run: echo ${{ steps.validate.outputs.exitcode }}
