@@ -10,4 +10,4 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: kuy/decent-profile-viewer/.github/workflows/apply-tf-prd.yml@main
+      - uses: ./.github/workflows/apply-tf-prd.yml

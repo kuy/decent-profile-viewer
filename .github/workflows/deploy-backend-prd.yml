@@ -59,4 +59,4 @@ jobs:
           skip_checkout: true
 
       - name: Run deploy workflow
-        uses: kuy/decent-profile-viewer/.github/workflows/apply-tf-prd.yml@main
+        uses: ./.github/workflows/apply-tf-prd.yml
