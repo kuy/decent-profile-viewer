@@ -1,0 +1,62 @@
+name: Deploy backend [prd]
+
+on:
+  push:
+    branches:
+      - "backend-prd"
+    paths:
+      - backend/**
+
+jobs:
+  build:
+    name: Build and Push
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Prepare variables
+        id: vars
+        run: echo "::set-output name=ga_commit_sha::${GITHUB_SHA::8}"
+
+      - uses: "google-github-actions/setup-gcloud@v0"
+
+      - name: Build and push to GCR
+        uses: RafikFarhad/push-to-gcr-github-action@v4
+        with:
+          gcloud_service_key: ${{ secrets.GOOGLE_CREDENTIALS }}
+          project_id: cropd-prj
+          registry: gcr.io
+          image_name: profile-viewer-api
+          image_tag: ${{ steps.vars.outputs.ga_commit_sha }}
+          dockerfile: Dockerfile
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Prepare variables
+        id: vars
+        run: echo "::set-output name=ga_commit_sha::${GITHUB_SHA::8}"
+
+      - name: Prepare new tfvars file
+        uses: sergeysova/jq-action@v2
+        id: tfvars-file
+        with:
+          cmd: 'jq .backend.image_tag|="${{ steps.vars.outputs.ga_commit_sha }}" terraform/prd.tfvars.json -r'
+          multiline: true
+
+      - name: Update tfvars file
+        run: "cat ${{ steps.tfvars-file.outputs.value }} > terraform/prd.tfvars.json"
+
+      - name: Commit and push to trigger GitHub Actions
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update to profile-viewer-api:${{ steps.vars.outputs.ga_commit_sha }} by GA"
+          branch: infra-prd
+          push_options: "--force"

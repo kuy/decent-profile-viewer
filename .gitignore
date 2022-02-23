@@ -9,4 +9,5 @@
 *.tfstate.*
 *.tfvars
 *.tfvars.json
+!prd.tfvars.json
 override.tf

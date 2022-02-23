@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Terraform [prd]
+    name: Deploy
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -26,5 +26,5 @@ jobs:
       - name: Terraform
         run: |
           terraform init
-          terraform plan -no-color
-          terraform apply -auto-approve
+          terraform plan -no-color -var-file="prd.tfvars.json"
+          terraform apply -auto-approve -var-file="prd.tfvars.json"
