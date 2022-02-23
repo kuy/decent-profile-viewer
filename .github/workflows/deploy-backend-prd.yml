@@ -29,7 +29,7 @@ jobs:
           registry: gcr.io
           image_name: profile-viewer-api
           image_tag: ${{ steps.vars.outputs.ga_commit_sha }}
-          dockerfile: Dockerfile
+          dockerfile: backend/Dockerfile
 
   deploy:
     name: Deploy
