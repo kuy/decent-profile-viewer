@@ -56,3 +56,4 @@ jobs:
           commit_message: "Update to profile-viewer-api:${{ steps.vars.outputs.ga_commit_sha }} by GA"
           branch: infra-prd
           push_options: "--force"
+          skip_checkout: true
