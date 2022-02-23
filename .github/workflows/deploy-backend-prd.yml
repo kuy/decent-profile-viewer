@@ -41,14 +41,16 @@ jobs:
         run: echo "::set-output name=ga_commit_sha::${GITHUB_SHA::8}"
 
       - name: Prepare new tfvars file
-        uses: sergeysova/jq-action@v2
+        uses: sergeysova/jq-action@v2.1.0
         id: tfvars-file
         with:
-          cmd: 'jq .backend.image_tag|="${{ steps.vars.outputs.ga_commit_sha }}" terraform/prd.tfvars.json -r'
+          cmd: jq '.backend.image_tag|="${{ steps.vars.outputs.ga_commit_sha }}"' terraform/prd.tfvars.json -r'
           multiline: true
 
       - name: Update tfvars file
-        run: "cat ${{ steps.tfvars-file.outputs.value }} > terraform/prd.tfvars.json"
+        run: |
+          echo ${{ steps.tfvars-file.outputs.value }}
+          cat ${{ steps.tfvars-file.outputs.value }} > terraform/prd.tfvars.json
 
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
