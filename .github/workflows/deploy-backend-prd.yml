@@ -29,8 +29,8 @@ jobs:
           dockerfile: backend/Dockerfile
           context: ./backend
 
-  deploy:
-    name: Deploy
+  commit:
+    name: Commit
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -50,7 +50,7 @@ jobs:
       - name: Update tfvars file
         run: "cat ${{ steps.tfvars-file.outputs.value }} > terraform/prd.tfvars.json"
 
-      - name: Commit and push to trigger GitHub Actions
+      - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update to profile-viewer-api:${{ steps.vars.outputs.ga_commit_sha }} by GA"
@@ -58,5 +58,6 @@ jobs:
           push_options: "--force"
           skip_checkout: true
 
-      - name: Run deploy workflow
-        uses: ./.github/workflows/apply-tf-prd.yml
+  deploy:
+    needs: commit
+    uses: ./.github/workflows/apply-tf-prd.yml
