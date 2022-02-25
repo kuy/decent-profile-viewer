@@ -24,7 +24,7 @@ jobs:
           target: wasm32-unknown-unknown
           override: true
 
-      - uses: actions-rs/install@v0.1
+      - uses: actions-rs/install@v0.1.2
         with:
           crate: trunk
           version: latest
