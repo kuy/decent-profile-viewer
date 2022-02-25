@@ -16,7 +16,7 @@ impl Component for AboutPage {
             <Page title="About">
                 <Heading>{ "About" }</Heading>
                 <Content>
-                    { "Hello Decent Community." }
+                    { "Hello Decent Community, this is Profile Viewer service." }
                 </Content>
             </Page>
         }
