@@ -1,6 +1,6 @@
-/target
-/dist
-/profiles
+/web/target
+/web/dist
+/web/profiles
 
 /backend/target
 

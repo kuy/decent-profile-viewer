@@ -1,19 +1,18 @@
 use include_dir::{include_dir, Dir};
 use once_cell::sync::Lazy;
-use std::collections::HashMap;
 
 use crate::lib::parser::{prop_string, Prop, PumpType, Step, TransitionType};
 
 static PROFILES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/profiles");
 
-pub static PROFILES: Lazy<HashMap<String, Preset>> = Lazy::new(|| {
+pub static PROFILES: Lazy<Vec<Preset>> = Lazy::new(|| {
     let parse_title = prop_string("profile_title");
     let parse_notes = prop_string("profile_notes");
 
-    let mut map = HashMap::default();
+    let mut items = vec![];
     for file in PROFILES_DIR.files() {
         let mut preset = Preset::default();
-        let file_name = file.path().file_name().unwrap().to_str().unwrap();
+        preset.name = file.path().file_name().unwrap().to_str().unwrap().to_string();
         let data = file.contents_utf8().unwrap().to_string();
 
         // filter by "Advanced" profile (settings_2c)
@@ -35,13 +34,15 @@ pub static PROFILES: Lazy<HashMap<String, Preset>> = Lazy::new(|| {
                 }
             }
         }
-        map.insert(file_name.to_string(), preset);
+        items.push(preset);
     }
-    map
+    items.sort_by(|a, b| a.title.cmp(&b.title));
+    items
 });
 
 #[derive(Clone, Default)]
 pub struct Preset {
+    pub name: String,
     pub title: String,
     pub notes: String,
     pub data: String,

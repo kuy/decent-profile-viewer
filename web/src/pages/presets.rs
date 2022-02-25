@@ -19,8 +19,8 @@ impl Component for PresetListPage {
             <Content>
               <PresetList items={PROFILES
                 .iter()
-                .map(|(name, preset)| {
-                  html! { <PresetItem name={name.clone()}>{ preset.title.as_str() }</PresetItem> }
+                .map(|preset| {
+                  html! { <PresetItem name={preset.name.clone()}>{ preset.title.as_str() }</PresetItem> }
                 })
                 .collect::<Vec<Html>>()} />
             </Content>
