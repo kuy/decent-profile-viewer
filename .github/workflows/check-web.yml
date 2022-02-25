@@ -25,6 +25,9 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
 
+      - name: Put dummy profile
+        run: mkdir profiles && touch dummy.tcl
+
       - name: Check
         run: |
           cargo fmt --check
