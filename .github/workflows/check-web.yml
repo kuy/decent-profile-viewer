@@ -21,10 +21,13 @@ jobs:
         with:
           toolchain: 1.59.0
           components: rustfmt, clippy
+          target: wasm32-unknown-unknown
           override: true
 
-      - name: Install trunk subcommand
-        run: cargo install --locked trunk
+      - uses: actions-rs/install@v0.1
+        with:
+          crate: trunk
+          version: latest
 
       - uses: Swatinem/rust-cache@v1
 
