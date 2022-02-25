@@ -11,8 +11,16 @@ pub static PROFILES: Lazy<Vec<Preset>> = Lazy::new(|| {
 
     let mut items = vec![];
     for file in PROFILES_DIR.files() {
-        let mut preset = Preset::default();
-        preset.name = file.path().file_name().unwrap().to_str().unwrap().to_string();
+        let mut preset = Preset {
+            name: file
+                .path()
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string(),
+            ..Default::default()
+        };
         let data = file.contents_utf8().unwrap().to_string();
 
         // filter by "Advanced" profile (settings_2c)
