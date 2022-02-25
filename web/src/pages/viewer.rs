@@ -30,7 +30,7 @@ impl Component for ViewerPage {
         let preset = PROFILES
             .iter()
             .find(|preset| preset.name == preset_name)
-            .unwrap_or_else(|| panic!("missing: {}", preset_name));
+            .unwrap_or_else(|| panic!("missing preset: {}", preset_name));
         let (_, steps) = steps(preset.data.as_bytes()).unwrap_or_else(|_| panic!("parse error"));
         let profile = analyze(&steps);
 
