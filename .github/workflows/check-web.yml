@@ -24,13 +24,13 @@ jobs:
           target: wasm32-unknown-unknown
           override: true
 
+      - uses: Swatinem/rust-cache@v1
+
       - uses: actions-rs/install@v0.1.2
         with:
           crate: trunk
           version: latest
           use-tool-cache: true
-
-      - uses: Swatinem/rust-cache@v1
 
       - name: Check
         run: |
