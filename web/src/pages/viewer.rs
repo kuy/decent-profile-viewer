@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use yew_router::{history::Location, prelude::RouterScopeExt};
 
-use crate::components::{Content, Graph, Heading};
+use crate::components::{Content, Description, Graph, Heading};
 use crate::lib::parser::steps;
 use crate::lib::profile::analyze;
 use crate::lib::profile::{AnalyzedProfile, PROFILES};
@@ -9,6 +9,7 @@ use crate::prelude::*;
 
 pub struct ViewerPage {
     profile_name: String,
+    profile_notes: String,
     profile_data: AnalyzedProfile,
 }
 
@@ -36,6 +37,7 @@ impl Component for ViewerPage {
 
         Self {
             profile_name: preset.title.clone(),
+            profile_notes: preset.notes.clone(),
             profile_data: profile,
         }
     }
@@ -46,6 +48,7 @@ impl Component for ViewerPage {
                 <Heading>{ self.profile_name.as_str() }</Heading>
                 <Content>
                     <Graph data={self.profile_data.clone()} />
+                    <Description>{ self.profile_notes.clone() }</Description>
                 </Content>
             </Page>
         }

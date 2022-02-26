@@ -1,5 +1,6 @@
 pub mod axis;
 mod content;
+mod description;
 pub mod graph;
 mod heading;
 mod link;
@@ -11,6 +12,7 @@ mod title;
 
 pub use axis::Axis;
 pub use content::Content;
+pub use description::Description;
 pub use graph::Graph;
 pub use heading::Heading;
 pub use link::Link;
