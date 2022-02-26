@@ -30,8 +30,6 @@ pub fn scale(domain: (f64, f64), codomain: (f64, f64)) -> impl Fn(f64) -> f64 {
 
 #[cfg(test)]
 mod tests {
-    use nom::error::{Error, ErrorKind};
-
     use super::*;
 
     #[test]

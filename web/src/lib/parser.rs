@@ -503,7 +503,7 @@ mod tests {
 
     #[test]
     fn test_step_inner() {
-        let tcl = include_str!("../fixtures/step.inner");
+        let tcl = include_str!("../../fixtures/step.inner");
         assert_eq!(
             props(tcl.as_bytes()),
             Ok((
@@ -533,7 +533,7 @@ mod tests {
 
     #[test]
     fn test_step_outer() {
-        let tcl = include_str!("../fixtures/step.outer");
+        let tcl = include_str!("../../fixtures/step.outer");
         assert_eq!(
             step(tcl.as_bytes()),
             Ok((
@@ -574,7 +574,7 @@ mod tests {
             ))
         );
 
-        let tcl = include_str!("../fixtures/steps.inner");
+        let tcl = include_str!("../../fixtures/steps.inner");
         assert_eq!(
             steps(tcl.as_bytes()),
             Ok((
