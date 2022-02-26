@@ -38,5 +38,8 @@ jobs:
           cargo check
           cargo clippy
 
+      - name: Test
+        run: cargo test
+
       - name: Build
         run: trunk build --release
