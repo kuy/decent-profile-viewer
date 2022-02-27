@@ -490,6 +490,31 @@ pub enum ProfileType {
     Settings2C2,
 }
 
+impl TryFrom<&[u8]> for ProfileType {
+    type Error = UnexpectedValueError;
+
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        let value = str::from_utf8(value).expect("should be converted");
+        let ret = match value {
+            "settings_1" => ProfileType::Settings1,
+            "settings_2" => ProfileType::Settings2,
+            "settings_2a" => ProfileType::Settings2A,
+            "settings_2b" => ProfileType::Settings2B,
+            "settings_2c" => ProfileType::Settings2C,
+            "settings_2c2" => ProfileType::Settings2C2,
+            _ => return Err(UnexpectedValueError(value.into())),
+        };
+        Ok(ret)
+    }
+}
+
+impl ParsableEnumCommand for ProfileType {
+    fn parse(i: &[u8]) -> IResult<&[u8], Command> {
+        let (i, (_, _, val)) = tuple((tag("settings_profile_type"), space1, profile_type_val))(i)?;
+        Ok((i, Command::SettingsProfileType(val)))
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Command {
     AdvancedShot(String),
@@ -535,11 +560,69 @@ pub enum Command {
     Unknown((String, String)),
 }
 
+fn command_bool(name: &str) -> impl Fn(&[u8]) -> IResult<&[u8], Command> {
+    let name = name.to_string();
+    move |i: &[u8]| {
+        let (i, (_, _, val)) = tuple((tag(name.as_bytes()), space1, bool_val))(i)?;
+        let cmd = match name.as_str() {
+            "espresso_temperature_steps_enabled" => Command::EspressoTemperatureStepsEnabled(val),
+            "profile_hide" => Command::ProfileHide(val),
+            _ => Command::Unknown((name.clone(), format!("{}", val))),
+        };
+        Ok((i, cmd))
+    }
+}
+
+fn command_number(name: &str) -> impl Fn(&[u8]) -> IResult<&[u8], Command> {
+    let name = name.to_string();
+    move |i: &[u8]| {
+        let (i, (_, _, val)) = tuple((tag(name.as_bytes()), space1, number_val))(i)?;
+        let cmd = match name.as_str() {
+            "espresso_decline_time" => Command::EspressoDeclineTime(val),
+            "espresso_hold_time" => Command::EspressoHoldTime(val),
+            "espresso_pressure" => Command::EspressoPressure(val),
+            "espresso_temperature" => Command::EspressoTemperature(val),
+            "espresso_temperature_0" => Command::EspressoTemperature0(val),
+            "espresso_temperature_1" => Command::EspressoTemperature1(val),
+            "espresso_temperature_2" => Command::EspressoTemperature2(val),
+            "espresso_temperature_3" => Command::EspressoTemperature3(val),
+            "final_desired_shot_volume" => Command::FinalDesiredShotVolume(val),
+            "final_desired_shot_volume_advanced" => Command::FinalDesiredShotVolumeAdvanced(val),
+            "final_desired_shot_volume_advanced_count_start" => {
+                Command::FinalDesiredShotVolumeAdvancedCountStart(val)
+            }
+            "final_desired_shot_weight" => Command::FinalDesiredShotWeight(val),
+            "final_desired_shot_weight_advanced" => Command::FinalDesiredShotWeightAdvanced(val),
+            "flow_profile_decline" => Command::FlowProfileDecline(val),
+            "flow_profile_decline_time" => Command::FlowProfileDeclineTime(val),
+            "flow_profile_hold" => Command::FlowProfileHold(val),
+            "flow_profile_hold_time" => Command::FlowProfileHoldTime(val),
+            "flow_profile_minimum_pressure" => Command::FlowProfileMinimumPressure(val),
+            "flow_profile_preinfusion" => Command::FlowProfilePreinfusion(val),
+            "flow_profile_preinfusion_time" => Command::FlowProfilePreinfusionTime(val),
+            "maximum_flow" => Command::MaximumFlow(val),
+            "maximum_flow_range_advanced" => Command::MaximumFlowRangeAdvanced(val),
+            "maximum_flow_range_default" => Command::MaximumFlowRangeDefault(val),
+            "maximum_pressure" => Command::MaximumPressure(val),
+            "maximum_pressure_range_advanced" => Command::MaximumPressureRangeAdvanced(val),
+            "maximum_pressure_range_default" => Command::MaximumPressureRangeDefault(val),
+            "preinfusion_flow_rate" => Command::PreinfusionFlowRate(val),
+            "preinfusion_stop_pressure" => Command::PreinfusionStopPressure(val),
+            "preinfusion_time" => Command::PreinfusionTime(val),
+            "pressure_end" => Command::PressureEnd(val),
+            "tank_desired_water_temperature" => Command::TankDesiredWaterTemperature(val),
+            _ => Command::Unknown((name.clone(), format!("{}", val))),
+        };
+        Ok((i, cmd))
+    }
+}
+
 fn command_string(name: &str) -> impl Fn(&[u8]) -> IResult<&[u8], Command> {
     let name = name.to_string();
     move |i: &[u8]| {
         let (i, (_, _, val)) = tuple((tag(name.as_bytes()), space1, string_val))(i)?;
         let cmd = match name.as_str() {
+            "advanced_shot" => Command::AdvancedShot(val),
             "author" => Command::Author(val),
             "profile_language" => Command::ProfileLanguage(val),
             "profile_notes" => Command::ProfileNotes(val),
@@ -566,6 +649,20 @@ fn beverage_type_val(i: &[u8]) -> IResult<&[u8], BeverageType> {
     )(i)
 }
 
+fn profile_type_val(i: &[u8]) -> IResult<&[u8], ProfileType> {
+    map_res(
+        alt((
+            tag("settings_1"),
+            tag("settings_2c2"),
+            tag("settings_2a"),
+            tag("settings_2b"),
+            tag("settings_2c"),
+            tag("settings_2"),
+        )),
+        ProfileType::try_from,
+    )(i)
+}
+
 fn command_enum<E>() -> impl Fn(&[u8]) -> IResult<&[u8], Command>
 where
     E: ParsableEnumCommand,
@@ -574,7 +671,53 @@ where
 }
 
 fn command(i: &[u8]) -> IResult<&[u8], Command> {
-    alt((command_string("author"), command_enum::<BeverageType>()))(i)
+    // NOTE: Nested `alt` combinator was caused by nom's limitation of maximum 21 parsers.
+    alt((
+        alt((
+            command_string("advanced_shot"),
+            command_string("author"),
+            command_enum::<BeverageType>(),
+            command_number("espresso_decline_time"),
+            command_number("espresso_hold_time"),
+            command_number("espresso_pressure"),
+            command_number("espresso_temperature"),
+            command_number("espresso_temperature_0"),
+            command_number("espresso_temperature_1"),
+            command_number("espresso_temperature_2"),
+            command_number("espresso_temperature_3"),
+            command_bool("espresso_temperature_steps_enabled"),
+            command_number("final_desired_shot_volume"),
+            command_number("final_desired_shot_volume_advanced"),
+            command_number("final_desired_shot_volume_advanced_count_start"),
+            command_number("final_desired_shot_weight"),
+            command_number("final_desired_shot_weight_advanced"),
+            command_number("flow_profile_decline"),
+            command_number("flow_profile_decline_time"),
+            command_number("flow_profile_hold"),
+        )),
+        alt((
+            command_number("flow_profile_hold_time"),
+            command_number("flow_profile_minimum_pressure"),
+            command_number("flow_profile_preinfusion"),
+            command_number("flow_profile_preinfusion_time"),
+            command_number("maximum_flow"),
+            command_number("maximum_flow_range_advanced"),
+            command_number("maximum_flow_range_default"),
+            command_number("maximum_pressure"),
+            command_number("maximum_pressure_range_advanced"),
+            command_number("maximum_pressure_range_default"),
+            command_number("preinfusion_flow_rate"),
+            command_number("preinfusion_stop_pressure"),
+            command_number("preinfusion_time"),
+            command_number("pressure_end"),
+            command_bool("profile_hide"),
+            command_string("profile_language"),
+            command_string("profile_notes"),
+            command_string("profile_title"),
+            command_enum::<ProfileType>(),
+            command_number("tank_desired_water_temperature"),
+        )),
+    ))(i)
 }
 
 pub fn profile(i: &[u8]) -> IResult<&[u8], Vec<Command>> {
@@ -890,10 +1033,54 @@ mod tests {
         let payload = include_str!("../../fixtures/profile.tcl");
         assert_eq!(
             profile(payload.as_bytes()),
-            Ok((&b"\n"[..], vec![
-                Command::Author("Decent".into()),
-                Command::BeverageType(BeverageType::Filter)
-            ]))
+            Ok((
+                &b"\n"[..],
+                vec![
+                    Command::AdvancedShot(
+                        "{exit_if 0 flow 4.0} {temperature 98.00 name {3 mL/s} seconds 60.00}"
+                            .into()
+                    ),
+                    Command::Author("Decent".into()),
+                    Command::BeverageType(BeverageType::Pourover),
+                    Command::EspressoDeclineTime(0.),
+                    Command::EspressoHoldTime(25.0),
+                    Command::EspressoPressure(8.6),
+                    Command::EspressoTemperature(98.),
+                    Command::EspressoTemperature0(90.),
+                    Command::EspressoTemperature1(88.),
+                    Command::EspressoTemperature2(88.),
+                    Command::EspressoTemperature3(88.),
+                    Command::EspressoTemperatureStepsEnabled(true),
+                    Command::FinalDesiredShotVolume(36.),
+                    Command::FinalDesiredShotVolumeAdvanced(0.),
+                    Command::FinalDesiredShotVolumeAdvancedCountStart(0.),
+                    Command::FinalDesiredShotWeight(100.),
+                    Command::FinalDesiredShotWeightAdvanced(100.),
+                    Command::FlowProfileDecline(1.2),
+                    Command::FlowProfileDeclineTime(17.),
+                    Command::FlowProfileHold(2.),
+                    Command::FlowProfileHoldTime(8.),
+                    Command::FlowProfileMinimumPressure(4.),
+                    Command::FlowProfilePreinfusion(4.),
+                    Command::FlowProfilePreinfusionTime(5.),
+                    Command::MaximumFlow(0.),
+                    Command::MaximumFlowRangeAdvanced(1.),
+                    Command::MaximumFlowRangeDefault(1.),
+                    Command::MaximumPressure(0.),
+                    Command::MaximumPressureRangeAdvanced(0.9),
+                    Command::MaximumPressureRangeDefault(0.9),
+                    Command::PreinfusionFlowRate(4.),
+                    Command::PreinfusionStopPressure(4.),
+                    Command::PreinfusionTime(0.),
+                    Command::PressureEnd(6.),
+                    Command::ProfileHide(true),
+                    Command::ProfileLanguage("en".into()),
+                    Command::ProfileNotes("first line\n\nafter blank line\nlast line".into()),
+                    Command::ProfileTitle("Filter 2.1".into()),
+                    Command::SettingsProfileType(ProfileType::Settings2C),
+                    Command::TankDesiredWaterTemperature(0.),
+                ]
+            ))
         );
     }
 }
