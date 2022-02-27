@@ -10,9 +10,10 @@ use nom::character::{
     streaming::digit1 as digit,
 };
 use nom::combinator::{map, map_res, opt, peek, recognize};
+use nom::error::{ErrorKind, ParseError};
 use nom::multi::separated_list0;
 use nom::sequence::{delimited, tuple};
-use nom::IResult;
+use nom::{Err, FindSubstring, FindToken, IResult};
 
 fn unsigned_float(i: &[u8]) -> IResult<&[u8], f32> {
     let float_bytes = recognize(alt((
@@ -298,8 +299,53 @@ fn bracket_string_val(i: &[u8]) -> IResult<&[u8], String> {
     ))
 }
 
+fn nested_bracket_string_val(input: &[u8]) -> IResult<&[u8], String> {
+    let (mut input, _) = tag("{")(input)?;
+
+    let input_len = input.len();
+    let mut close_i = None;
+    let mut cursor = 0;
+    let mut nest = 0;
+    while cursor < input_len {
+        match input[cursor] as char {
+            '{' => {
+                nest += 1;
+            }
+            '}' => {
+                if nest == 0 {
+                    close_i = Some(cursor);
+                    break;
+                } else {
+                    nest -= 1;
+                }
+            }
+            _ => (),
+        }
+        cursor += 1;
+    }
+
+    if close_i.is_some() {
+        let inner = &input[0..cursor];
+        input = &input[(cursor + 1)..input_len];
+
+        Ok((
+            input,
+            String::from_utf8(inner.to_vec()).expect("should be converted"),
+        ))
+    } else {
+        Err(Err::Error(nom::error::Error::from_error_kind(
+            input,
+            ErrorKind::Fail,
+        )))
+    }
+}
+
 fn string_val(i: &[u8]) -> IResult<&[u8], String> {
-    alt((bracket_string_val, plain_string_val))(i)
+    alt((
+        nested_bracket_string_val,
+        bracket_string_val,
+        plain_string_val,
+    ))(i)
 }
 
 fn prop_bool(name: &str) -> impl Fn(&[u8]) -> IResult<&[u8], Prop> {
@@ -551,6 +597,34 @@ mod tests {
     }
 
     #[test]
+    fn test_nested_bracket_string_val() {
+        assert_eq!(
+            nested_bracket_string_val(b"{} rest"),
+            Ok((&b" rest"[..], "".into()))
+        );
+        assert_eq!(
+            nested_bracket_string_val(b"{volume 150.0} rest"),
+            Ok((&b" rest"[..], "volume 150.0".into()))
+        );
+        assert_eq!(
+            nested_bracket_string_val(b"{{exit_if 0} {volume 150.0}} rest"),
+            Ok((&b" rest"[..], "{exit_if 0} {volume 150.0}".into()))
+        );
+        assert_eq!(
+            nested_bracket_string_val(b"{{exit_if 0} {volume 150.0 name {Hoge}}}"),
+            Ok((&b""[..], "{exit_if 0} {volume 150.0 name {Hoge}}".into()))
+        );
+
+        assert_eq!(
+            nested_bracket_string_val(b"{{exit_if 0} {volume 150.0} unmatched"),
+            Err(Err::Error(Error::from_error_kind(
+                &b"{exit_if 0} {volume 150.0} unmatched"[..],
+                ErrorKind::Fail
+            )))
+        );
+    }
+
+    #[test]
     fn test_string_val() {
         assert_eq!(string_val(b"Fill ;"), Ok((&b" ;"[..], "Fill".into())));
         assert_eq!(string_val(b"Fill\n;"), Ok((&b"\n;"[..], "Fill".into())));
@@ -561,6 +635,13 @@ mod tests {
         assert_eq!(
             string_val(b"{New\n\"Line\"\n\nSupported \n};"),
             Ok((&b";"[..], "New\n\"Line\"\n\nSupported \n".into()))
+        );
+        assert_eq!(
+            string_val(b"{{exit_if 0 flow 5.0} {volume 200.0 name {Rust}}};"),
+            Ok((
+                &b";"[..],
+                "{exit_if 0 flow 5.0} {volume 200.0 name {Rust}}".into()
+            ))
         );
     }
 
