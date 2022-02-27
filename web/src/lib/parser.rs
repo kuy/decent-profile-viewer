@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::str::{self, FromStr};
 
 use nom::branch::alt;
-use nom::bytes::complete::{tag, take_till, take_until};
+use nom::bytes::complete::{tag, tag_no_case, take_till, take_until};
 use nom::character::complete::{multispace0, multispace1};
 use nom::character::{
     complete::{space1, u16},
@@ -169,6 +169,13 @@ impl TryFrom<&[u8]> for ExitType {
     }
 }
 
+impl ParsableEnumProp for ExitType {
+    fn parse(i: &[u8]) -> IResult<&[u8], Prop> {
+        let (i, (_, _, val)) = tuple((tag("exit_type"), space1, exit_type_val))(i)?;
+        Ok((i, Prop::ExitType(val)))
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Step(pub Vec<Prop>);
 
@@ -236,13 +243,6 @@ impl Step {
             }
             _ => None,
         }
-    }
-}
-
-impl ParsableEnumProp for ExitType {
-    fn parse(i: &[u8]) -> IResult<&[u8], Prop> {
-        let (i, (_, _, val)) = tuple((tag("exit_type"), space1, exit_type_val))(i)?;
-        Ok((i, Prop::ExitType(val)))
     }
 }
 
@@ -392,6 +392,149 @@ pub fn steps(i: &[u8]) -> IResult<&[u8], Vec<Step>> {
     separated_list0(multispace0, step)(i)
 }
 
+trait ParsableEnumCommand {
+    fn parse(i: &[u8]) -> IResult<&[u8], Command>;
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum BeverageType {
+    Calibrate,
+    Cleaning,
+    Espresso,
+    Filter,
+    Manual,
+    Pourover,
+    TeaPortafilter,
+}
+
+impl TryFrom<&[u8]> for BeverageType {
+    type Error = UnexpectedValueError;
+
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        let value = str::from_utf8(value).expect("should be converted");
+        let ret = match value.to_lowercase().as_str() {
+            "calibrate" => BeverageType::Calibrate,
+            "cleaning" => BeverageType::Cleaning,
+            "espresso" => BeverageType::Espresso,
+            "filter" => BeverageType::Filter,
+            "manual" => BeverageType::Manual,
+            "pourover" => BeverageType::Pourover,
+            "tea" => BeverageType::TeaPortafilter,
+            "tea_portafilter" => BeverageType::TeaPortafilter,
+            _ => return Err(UnexpectedValueError(value.into())),
+        };
+        Ok(ret)
+    }
+}
+
+impl ParsableEnumCommand for BeverageType {
+    fn parse(i: &[u8]) -> IResult<&[u8], Command> {
+        let (i, (_, _, val)) = tuple((tag("beverage_type"), space1, beverage_type_val))(i)?;
+        Ok((i, Command::BeverageType(val)))
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum ProfileType {
+    Settings1,
+    Settings2,
+    Settings2A,
+    Settings2B,
+    Settings2C,
+    Settings2C2,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum Command {
+    AdvancedShot(String),
+    Author(String),
+    BeverageType(BeverageType),
+    EspressoDeclineTime(f32),
+    EspressoHoldTime(f32),
+    EspressoPressure(f32),
+    EspressoTemperature(f32),
+    EspressoTemperature0(f32),
+    EspressoTemperature1(f32),
+    EspressoTemperature2(f32),
+    EspressoTemperature3(f32),
+    EspressoTemperatureStepsEnabled(bool),
+    FinalDesiredShotVolume(f32),
+    FinalDesiredShotVolumeAdvanced(f32),
+    FinalDesiredShotVolumeAdvancedCountStart(f32),
+    FinalDesiredShotWeight(f32),
+    FinalDesiredShotWeightAdvanced(f32),
+    FlowProfileDecline(f32),
+    FlowProfileDeclineTime(f32),
+    FlowProfileHold(f32),
+    FlowProfileHoldTime(f32),
+    FlowProfileMinimumPressure(f32),
+    FlowProfilePreinfusion(f32),
+    FlowProfilePreinfusionTime(f32),
+    MaximumFlow(f32),
+    MaximumFlowRangeAdvanced(f32),
+    MaximumFlowRangeDefault(f32),
+    MaximumPressure(f32),
+    MaximumPressureRangeAdvanced(f32),
+    MaximumPressureRangeDefault(f32),
+    PreinfusionFlowRate(f32),
+    PreinfusionStopPressure(f32),
+    PreinfusionTime(f32),
+    PressureEnd(f32),
+    ProfileHide(bool),
+    ProfileLanguage(String),
+    ProfileNotes(String),
+    ProfileTitle(String),
+    SettingsProfileType(ProfileType),
+    TankDesiredWaterTemperature(f32),
+    Unknown((String, String)),
+}
+
+fn command_string(name: &str) -> impl Fn(&[u8]) -> IResult<&[u8], Command> {
+    let name = name.to_string();
+    move |i: &[u8]| {
+        let (i, (_, _, val)) = tuple((tag(name.as_bytes()), space1, string_val))(i)?;
+        let cmd = match name.as_str() {
+            "author" => Command::Author(val),
+            "profile_language" => Command::ProfileLanguage(val),
+            "profile_notes" => Command::ProfileNotes(val),
+            "profile_title" => Command::ProfileTitle(val),
+            _ => Command::Unknown((name.clone(), val)),
+        };
+        Ok((i, cmd))
+    }
+}
+
+fn beverage_type_val(i: &[u8]) -> IResult<&[u8], BeverageType> {
+    map_res(
+        alt((
+            tag_no_case("calibrate"),
+            tag_no_case("cleaning"),
+            tag_no_case("espresso"),
+            tag_no_case("filter"),
+            tag_no_case("manual"),
+            tag_no_case("pourover"),
+            tag_no_case("tea_portafilter"),
+            tag_no_case("tea"),
+        )),
+        BeverageType::try_from,
+    )(i)
+}
+
+fn command_enum<E>() -> impl Fn(&[u8]) -> IResult<&[u8], Command>
+where
+    E: ParsableEnumCommand,
+{
+    |i: &[u8]| E::parse(i)
+}
+
+fn command(i: &[u8]) -> IResult<&[u8], Command> {
+    alt((command_string("author"), command_enum::<BeverageType>()))(i)
+}
+
+pub fn profile(i: &[u8]) -> IResult<&[u8], Vec<Command>> {
+    todo!()
+}
+
 #[cfg(test)]
 mod tests {
     use nom::error::{Error, ErrorKind};
@@ -503,9 +646,9 @@ mod tests {
 
     #[test]
     fn test_step_inner() {
-        let tcl = include_str!("../../fixtures/step.inner");
+        let payload = include_str!("../../fixtures/step.inner");
         assert_eq!(
-            props(tcl.as_bytes()),
+            props(payload.as_bytes()),
             Ok((
                 &b".00"[..],
                 vec![
@@ -533,9 +676,9 @@ mod tests {
 
     #[test]
     fn test_step_outer() {
-        let tcl = include_str!("../../fixtures/step.outer");
+        let payload = include_str!("../../fixtures/step.outer");
         assert_eq!(
-            step(tcl.as_bytes()),
+            step(payload.as_bytes()),
             Ok((
                 &b""[..],
                 Step(vec![
@@ -574,9 +717,9 @@ mod tests {
             ))
         );
 
-        let tcl = include_str!("../../fixtures/steps.inner");
+        let payload = include_str!("../../fixtures/steps.inner");
         assert_eq!(
-            steps(tcl.as_bytes()),
+            steps(payload.as_bytes()),
             Ok((
                 &b"\n"[..],
                 vec![
@@ -621,4 +764,52 @@ mod tests {
             ))
         );
     }
+
+    #[test]
+    fn test_command() {
+        assert_eq!(
+            command(b"author Decent"),
+            Ok((&b""[..], Command::Author("Decent".into())))
+        );
+        assert_eq!(
+            command(b"author {Decent}"),
+            Ok((&b""[..], Command::Author("Decent".into())))
+        );
+
+        assert_eq!(
+            command(b"beverage_type filter"),
+            Ok((&b""[..], Command::BeverageType(BeverageType::Filter)))
+        );
+        assert_eq!(
+            command(b"beverage_type cleaning"),
+            Ok((&b""[..], Command::BeverageType(BeverageType::Cleaning)))
+        );
+        assert_eq!(
+            command(b"beverage_type Cleaning"),
+            Ok((&b""[..], Command::BeverageType(BeverageType::Cleaning)))
+        );
+        assert_eq!(
+            command(b"beverage_type tea"),
+            Ok((
+                &b""[..],
+                Command::BeverageType(BeverageType::TeaPortafilter)
+            ))
+        );
+        assert_eq!(
+            command(b"beverage_type tea_portafilter"),
+            Ok((
+                &b""[..],
+                Command::BeverageType(BeverageType::TeaPortafilter)
+            ))
+        );
+    }
+
+    // #[test]
+    // fn test_profile() {
+    //     let payload = include_str!("../../fixtures/profile.tcl");
+    //     assert_eq!(
+    //         profile(payload.as_bytes()),
+    //         todo!()
+    //     );
+    // }
 }
