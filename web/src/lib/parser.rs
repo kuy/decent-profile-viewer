@@ -578,7 +578,7 @@ fn command(i: &[u8]) -> IResult<&[u8], Command> {
 }
 
 pub fn profile(i: &[u8]) -> IResult<&[u8], Vec<Command>> {
-    todo!()
+    separated_list0(multispace0, command)(i)
 }
 
 #[cfg(test)]
@@ -885,12 +885,15 @@ mod tests {
         );
     }
 
-    // #[test]
-    // fn test_profile() {
-    //     let payload = include_str!("../../fixtures/profile.tcl");
-    //     assert_eq!(
-    //         profile(payload.as_bytes()),
-    //         todo!()
-    //     );
-    // }
+    #[test]
+    fn test_profile() {
+        let payload = include_str!("../../fixtures/profile.tcl");
+        assert_eq!(
+            profile(payload.as_bytes()),
+            Ok((&b"\n"[..], vec![
+                Command::Author("Decent".into()),
+                Command::BeverageType(BeverageType::Filter)
+            ]))
+        );
+    }
 }
