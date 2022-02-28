@@ -33,7 +33,7 @@ impl Component for ViewerPage {
             .find(|preset| preset.name == preset_name)
             .unwrap_or_else(|| panic!("Unknown preset: {}", preset_name));
         let (_, steps) =
-            steps(preset.data.as_bytes()).unwrap_or_else(|e| panic!("Parse error\n  {:?}", e));
+            steps(preset.data.as_bytes()).unwrap_or_else(|e| panic!("Parse error: {:?}", e));
         let profile = analyze(&steps);
 
         Self {
