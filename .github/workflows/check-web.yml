@@ -26,12 +26,18 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
 
+      - name: Check trunk binary
+        id: check_files
+        uses: andstor/file-existence-action@v1.1.0
+        with:
+          files: "/home/runner/.cargo/bin/trunk"
+
       - uses: actions-rs/install@v0.1.2
         with:
           crate: trunk
           version: latest
           use-tool-cache: true
-        if: "(test -f '/home/runner/.cargo/bin/trunk' && echo 'trunk exists') || echo 'trunk does not exist, install it'"
+        if: steps.check_files.outputs.files_exists != 'true'
 
       - name: Check
         run: |
