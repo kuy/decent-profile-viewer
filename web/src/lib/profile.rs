@@ -1,14 +1,11 @@
 use include_dir::{include_dir, Dir};
 use once_cell::sync::Lazy;
 
-use crate::lib::parser::{prop_string, Prop, PumpType, Step, TransitionType};
+use crate::lib::parser::{profile, Command, ProfileType, Prop, PumpType, Step, TransitionType};
 
 static PROFILES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/profiles");
 
 pub static PROFILES: Lazy<Vec<Preset>> = Lazy::new(|| {
-    let parse_title = prop_string("profile_title");
-    let parse_notes = prop_string("profile_notes");
-
     let mut items = vec![];
     for file in PROFILES_DIR.files() {
         let mut preset = Preset {
@@ -21,32 +18,63 @@ pub static PROFILES: Lazy<Vec<Preset>> = Lazy::new(|| {
                 .to_string(),
             ..Default::default()
         };
-        let data = file.contents_utf8().unwrap().to_string();
 
-        // filter by "Advanced" profile (settings_2c)
-        if !data.contains("settings_2c") {
+        let content = file.contents_utf8().unwrap();
+        let (_, commands) = profile(content.as_bytes()).expect("Failed to parse");
+        let profile = Profile(commands);
+
+        // NOTE: Support only "Advanced Profile" now
+        if !profile.is_profile_type(ProfileType::Settings2C) {
             continue;
         }
 
-        for line in data.lines() {
-            if line.starts_with("advanced_shot") {
-                let end = line.len() - 1;
-                preset.data = format!("{}\n", line[15..end].to_owned());
-            } else if line.starts_with("profile_title") {
-                if let Ok((_, Prop::Unknown((_, title)))) = parse_title(line.as_bytes()) {
-                    preset.title = title;
-                }
-            } else if line.starts_with("profile_notes") {
-                if let Ok((_, Prop::Unknown((_, notes)))) = parse_notes(line.as_bytes()) {
-                    preset.notes = notes;
-                }
-            }
-        }
+        let name = &preset.name;
+        preset.title = profile
+            .title()
+            .unwrap_or_else(move || panic!("Failed to get `profile_title` {}", name));
+        preset.notes = profile.notes().expect("Failed to get `profile_notes`");
+        preset.data = profile
+            .advanced_shot()
+            .expect("Failed to get `advanced_shot`");
+
         items.push(preset);
     }
     items.sort_by(|a, b| a.title.cmp(&b.title));
     items
 });
+
+#[derive(Clone, Debug)]
+pub struct Profile(pub Vec<Command>);
+
+impl Profile {
+    pub fn is_profile_type(&self, ty: ProfileType) -> bool {
+        self.0.iter().any(|cmd| match cmd {
+            Command::SettingsProfileType(pt) => pt == &ty,
+            _ => false,
+        })
+    }
+
+    pub fn title(&self) -> Option<String> {
+        self.0.iter().find_map(|cmd| match cmd {
+            Command::ProfileTitle(title) => Some(title.clone()),
+            _ => None,
+        })
+    }
+
+    pub fn notes(&self) -> Option<String> {
+        self.0.iter().find_map(|cmd| match cmd {
+            Command::ProfileNotes(note) => Some(note.clone()),
+            _ => None,
+        })
+    }
+
+    pub fn advanced_shot(&self) -> Option<String> {
+        self.0.iter().find_map(|cmd| match cmd {
+            Command::AdvancedShot(data) => Some(data.clone()),
+            _ => None,
+        })
+    }
+}
 
 #[derive(Clone, Default)]
 pub struct Preset {
@@ -188,5 +216,25 @@ pub fn analyze(steps: &[Step]) -> AnalyzedProfile {
         pressure: pressure_pos,
         flow: flow_pos,
         elapsed_time,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_profile_is_profile_type() {
+        let profile = Profile(vec![Command::SettingsProfileType(ProfileType::Settings2C)]);
+        assert_eq!(profile.is_profile_type(ProfileType::Settings2C), true);
+    }
+
+    #[test]
+    fn test_profile_is_profile_type_failed() {
+        let profile = Profile(vec![Command::SettingsProfileType(ProfileType::Settings1)]);
+        assert_eq!(profile.is_profile_type(ProfileType::Settings2C), false);
+
+        let profile = Profile(vec![Command::Author("Trunk".into())]);
+        assert_eq!(profile.is_profile_type(ProfileType::Settings2C), false);
     }
 }

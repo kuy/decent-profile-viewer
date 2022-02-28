@@ -1,19 +1,22 @@
-use std::convert::TryFrom;
-use std::str::{self, FromStr};
+use std::{
+    convert::TryFrom,
+    str::{self, FromStr},
+};
 
 use nom::branch::alt;
 use nom::bytes::complete::{tag, tag_no_case, take_till, take_until};
-use nom::character::complete::{multispace0, multispace1};
 use nom::character::{
-    complete::{space1, u16},
+    complete::{multispace0, multispace1, space1, u16},
     is_newline, is_space,
     streaming::digit1 as digit,
 };
 use nom::combinator::{map, map_res, opt, peek, recognize};
-use nom::error::{ErrorKind, ParseError};
 use nom::multi::separated_list0;
 use nom::sequence::{delimited, tuple};
-use nom::{Err, FindSubstring, FindToken, IResult};
+use nom::{
+    error::{ErrorKind, ParseError},
+    Err, IResult,
+};
 
 fn unsigned_float(i: &[u8]) -> IResult<&[u8], f32> {
     let float_bytes = recognize(alt((
@@ -542,12 +545,15 @@ pub enum Command {
     FlowProfilePreinfusion(f32),
     FlowProfilePreinfusionTime(f32),
     MaximumFlow(f32),
+    MaximumFlowRange(f32),
     MaximumFlowRangeAdvanced(f32),
     MaximumFlowRangeDefault(f32),
     MaximumPressure(f32),
+    MaximumPressureRange(f32),
     MaximumPressureRangeAdvanced(f32),
     MaximumPressureRangeDefault(f32),
     PreinfusionFlowRate(f32),
+    PreinfusionGuarantee(bool),
     PreinfusionStopPressure(f32),
     PreinfusionTime(f32),
     PressureEnd(f32),
@@ -557,6 +563,12 @@ pub enum Command {
     ProfileTitle(String),
     SettingsProfileType(ProfileType),
     TankDesiredWaterTemperature(f32),
+    WaterTemperature(f32),
+    BeanBrand(String),
+    BeanType(String),
+    GrinderDoseWeight(f32),
+    GrinderModel(String),
+    GrinderSetting(String),
     Unknown((String, String)),
 }
 
@@ -566,6 +578,7 @@ fn command_bool(name: &str) -> impl Fn(&[u8]) -> IResult<&[u8], Command> {
         let (i, (_, _, val)) = tuple((tag(name.as_bytes()), space1, bool_val))(i)?;
         let cmd = match name.as_str() {
             "espresso_temperature_steps_enabled" => Command::EspressoTemperatureStepsEnabled(val),
+            "preinfusion_guarantee" => Command::PreinfusionGuarantee(val),
             "profile_hide" => Command::ProfileHide(val),
             _ => Command::Unknown((name.clone(), format!("{}", val))),
         };
@@ -601,9 +614,11 @@ fn command_number(name: &str) -> impl Fn(&[u8]) -> IResult<&[u8], Command> {
             "flow_profile_preinfusion" => Command::FlowProfilePreinfusion(val),
             "flow_profile_preinfusion_time" => Command::FlowProfilePreinfusionTime(val),
             "maximum_flow" => Command::MaximumFlow(val),
+            "maximum_flow_range" => Command::MaximumFlowRange(val),
             "maximum_flow_range_advanced" => Command::MaximumFlowRangeAdvanced(val),
             "maximum_flow_range_default" => Command::MaximumFlowRangeDefault(val),
             "maximum_pressure" => Command::MaximumPressure(val),
+            "maximum_pressure_range" => Command::MaximumPressureRange(val),
             "maximum_pressure_range_advanced" => Command::MaximumPressureRangeAdvanced(val),
             "maximum_pressure_range_default" => Command::MaximumPressureRangeDefault(val),
             "preinfusion_flow_rate" => Command::PreinfusionFlowRate(val),
@@ -611,6 +626,8 @@ fn command_number(name: &str) -> impl Fn(&[u8]) -> IResult<&[u8], Command> {
             "preinfusion_time" => Command::PreinfusionTime(val),
             "pressure_end" => Command::PressureEnd(val),
             "tank_desired_water_temperature" => Command::TankDesiredWaterTemperature(val),
+            "water_temperature" => Command::WaterTemperature(val),
+            "grinder_dose_weight" => Command::GrinderDoseWeight(val),
             _ => Command::Unknown((name.clone(), format!("{}", val))),
         };
         Ok((i, cmd))
@@ -627,6 +644,10 @@ fn command_string(name: &str) -> impl Fn(&[u8]) -> IResult<&[u8], Command> {
             "profile_language" => Command::ProfileLanguage(val),
             "profile_notes" => Command::ProfileNotes(val),
             "profile_title" => Command::ProfileTitle(val),
+            "bean_brand" => Command::BeanBrand(val),
+            "bean_type" => Command::BeanType(val),
+            "grinder_model" => Command::GrinderModel(val),
+            "grinder_setting" => Command::GrinderSetting(val),
             _ => Command::Unknown((name.clone(), val)),
         };
         Ok((i, cmd))
@@ -701,21 +722,32 @@ fn command(i: &[u8]) -> IResult<&[u8], Command> {
             command_number("flow_profile_preinfusion"),
             command_number("flow_profile_preinfusion_time"),
             command_number("maximum_flow"),
+            command_number("maximum_flow_range"),
             command_number("maximum_flow_range_advanced"),
             command_number("maximum_flow_range_default"),
             command_number("maximum_pressure"),
+            command_number("maximum_pressure_range"),
             command_number("maximum_pressure_range_advanced"),
             command_number("maximum_pressure_range_default"),
             command_number("preinfusion_flow_rate"),
+            command_bool("preinfusion_guarantee"),
             command_number("preinfusion_stop_pressure"),
             command_number("preinfusion_time"),
             command_number("pressure_end"),
             command_bool("profile_hide"),
             command_string("profile_language"),
             command_string("profile_notes"),
+        )),
+        alt((
             command_string("profile_title"),
             command_enum::<ProfileType>(),
             command_number("tank_desired_water_temperature"),
+            command_number("water_temperature"),
+            command_string("bean_brand"),
+            command_string("bean_type"),
+            command_number("grinder_dose_weight"),
+            command_string("grinder_model"),
+            command_string("grinder_setting"),
         )),
     ))(i)
 }
@@ -1029,7 +1061,7 @@ mod tests {
     }
 
     #[test]
-    fn test_profile() {
+    fn test_profile_file() {
         let payload = include_str!("../../fixtures/profile.tcl");
         assert_eq!(
             profile(payload.as_bytes()),
