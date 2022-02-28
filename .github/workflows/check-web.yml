@@ -7,6 +7,10 @@ on:
     paths:
       - web/**
 
+env:
+  RUST_VERSION: "1.59.0"
+  TRUNK_VERSION: "0.14.0"
+
 jobs:
   ci:
     name: CI
@@ -19,24 +23,26 @@ jobs:
 
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.59.0
+          toolchain: "${{ env.RUST_VERSION }}"
           components: rustfmt, clippy
           target: wasm32-unknown-unknown
           override: true
 
       - uses: Swatinem/rust-cache@v1
 
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cargo/bin/trunk
+          key: "${{ runner.os }}-${{ env.RUST_VERSION }}-trunk-${{ env.TRUNK_VERSION }}"
+
       - name: Check trunk binary
         id: check_files
         uses: andstor/file-existence-action@v1.1.0
         with:
-          files: "/home/runner/.cargo/bin/trunk"
+          files: "~/.cargo/bin/trunk"
 
-      - uses: actions-rs/install@v0.1.2
-        with:
-          crate: trunk
-          version: latest
-          use-tool-cache: true
+      - name: Install trunk
+        run: "cargo install trunk --version ${{ env.TRUNK_VERSION }}"
         if: steps.check_files.outputs.files_exists != 'true'
 
       - name: Check
