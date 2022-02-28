@@ -34,7 +34,8 @@ jobs:
         with:
           files: "/home/runner/.cargo/bin/trunk"
 
-      - run: cargo install trunk
+      - name: Install trunk
+        run: cargo install trunk
         if: steps.file_existence.outputs.files_exists != 'true'
 
       - run: trunk --version
