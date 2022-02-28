@@ -31,11 +31,9 @@ pub static PROFILES: Lazy<Vec<Preset>> = Lazy::new(|| {
         let name = &preset.name;
         preset.title = profile
             .title()
-            .unwrap_or_else(move || panic!("Failed to get `profile_title` {}", name));
-        preset.notes = profile.notes().expect("Failed to get `profile_notes`");
-        preset.data = profile
-            .advanced_shot()
-            .expect("Failed to get `advanced_shot`");
+            .unwrap_or_else(move || panic!("No title {}", name));
+        preset.notes = profile.notes().expect("No notes");
+        preset.data = profile.advanced_shot().expect("No advanced_shot");
 
         items.push(preset);
     }

@@ -28,14 +28,14 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: ~/.cargo/bin/trunk
+          path: /home/runner/.cargo/bin/trunk
           key: "${{ runner.os }}-${{ env.RUST_VERSION }}-trunk-${{ env.TRUNK_VERSION }}"
 
       - name: Check trunk binary
         id: file_existence
         uses: andstor/file-existence-action@v1.1.0
         with:
-          files: "~/.cargo/bin/trunk"
+          files: "/home/runner/.cargo/bin/trunk"
 
       - name: Install trunk
         run: "cargo install trunk --version $TRUNK_VERSION"
