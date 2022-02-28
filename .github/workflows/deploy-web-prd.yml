@@ -5,6 +5,10 @@ on:
     branches:
       - "web-prd"
 
+env:
+  RUST_VERSION: "1.59.0"
+  TRUNK_VERSION: "0.14.0"
+
 jobs:
   deploy:
     name: Deploy
@@ -23,11 +27,20 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
 
-      - uses: actions-rs/install@v0.1.2
+      - uses: actions/cache@v2
         with:
-          crate: trunk
-          version: latest
-          use-tool-cache: true
+          path: /home/runner/.cargo/bin/trunk
+          key: "${{ runner.os }}-${{ env.RUST_VERSION }}-trunk-${{ env.TRUNK_VERSION }}"
+
+      - name: Check trunk binary
+        id: check_files
+        uses: andstor/file-existence-action@v1.1.0
+        with:
+          files: "/home/runner/.cargo/bin/trunk"
+
+      - name: Install trunk
+        run: "cargo install trunk --version ${{ env.TRUNK_VERSION }}"
+        if: steps.check_files.outputs.files_exists != 'true'
 
       - name: Build
         run: trunk build --release
