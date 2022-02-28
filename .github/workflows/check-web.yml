@@ -31,7 +31,7 @@ jobs:
           crate: trunk
           version: latest
           use-tool-cache: true
-        if: "(test -f /home/runner/.cargo/bin/trunk && echo trunk exists) || echo trunk does not exist, install it"
+        if: "(test -f '/home/runner/.cargo/bin/trunk' && echo 'trunk exists') || echo 'trunk does not exist, install it'"
 
       - name: Check
         run: |
