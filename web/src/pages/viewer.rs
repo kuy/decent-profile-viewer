@@ -27,13 +27,13 @@ impl Component for ViewerPage {
         let location = ctx.link().location().unwrap();
         let query = location.query::<QueryParams>().unwrap();
 
-        let preset_name = query.preset.unwrap_or_else(|| panic!("unsupported query"));
+        let preset_name = query.preset.unwrap_or_else(|| panic!("Unsupported query"));
         let preset = PROFILES
             .iter()
             .find(|preset| preset.name == preset_name)
-            .unwrap_or_else(|| panic!("missing preset: {}", preset_name));
+            .unwrap_or_else(|| panic!("Unknown preset: {}", preset_name));
         let (_, steps) =
-            steps(preset.data.as_bytes()).unwrap_or_else(|e| panic!("parse error\n  {:?}", e));
+            steps(preset.data.as_bytes()).unwrap_or_else(|e| panic!("Parse error\n  {:?}", e));
         let profile = analyze(&steps);
 
         Self {
