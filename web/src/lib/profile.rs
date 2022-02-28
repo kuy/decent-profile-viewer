@@ -23,7 +23,7 @@ pub static PROFILES: Lazy<Vec<Preset>> = Lazy::new(|| {
         let (_, commands) = profile(content.as_bytes()).expect("Failed to parse");
         let profile = Profile(commands);
 
-        // NOTE: Support only "Advanced Profile" now
+        // NOTE: Support only "Advanced Profile"
         if !profile.is_profile_type(ProfileType::Settings2C) {
             continue;
         }
