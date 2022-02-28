@@ -70,7 +70,7 @@ impl Profile {
 
     pub fn advanced_shot(&self) -> Option<String> {
         self.0.iter().find_map(|cmd| match cmd {
-            Command::AdvancedShot(data) => Some(data.clone()),
+            Command::AdvancedShot(data) => Some(format!("{}\n", data.clone())),
             _ => None,
         })
     }
