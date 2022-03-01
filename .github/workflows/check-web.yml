@@ -6,6 +6,7 @@ on:
       - "main"
     paths:
       - web/**
+      - .github/workflows/check-web.yml
 
 env:
   RUST_VERSION: "1.59.0"

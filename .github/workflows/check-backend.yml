@@ -6,6 +6,7 @@ on:
       - "main"
     paths:
       - backend/**
+      - .github/workflows/check-backend.yml
 
 env:
   RUST_VERSION: "1.59.0"
