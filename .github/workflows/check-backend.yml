@@ -7,6 +7,9 @@ on:
     paths:
       - backend/**
 
+env:
+  RUST_VERSION: "1.59.0"
+
 jobs:
   ci:
     name: CI
@@ -19,7 +22,8 @@ jobs:
 
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.59.0
+          toolchain: "${{ env.RUST_VERSION }}"
+          components: rustfmt, clippy
           override: true
 
       - uses: Swatinem/rust-cache@v1
