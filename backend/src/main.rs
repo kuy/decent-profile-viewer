@@ -6,8 +6,7 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     let app = Router::new()
-        .route("/", get(root))
-        .route("/hello", get(hello));
+        .route("/ping", get(ping));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("listening on {}", addr);
@@ -17,10 +16,6 @@ async fn main() {
         .unwrap();
 }
 
-async fn root() -> &'static str {
-    "Hello, World!"
-}
-
-async fn hello() -> &'static str {
-    "World!"
+async fn ping() -> &'static str {
+    "pong"
 }
