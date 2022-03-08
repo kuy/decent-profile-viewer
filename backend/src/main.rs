@@ -5,8 +5,7 @@ use std::net::SocketAddr;
 async fn main() {
     tracing_subscriber::fmt::init();
 
-    let app = Router::new()
-        .route("/ping", get(ping));
+    let app = Router::new().route("/ping", get(ping));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::debug!("listening on {}", addr);
