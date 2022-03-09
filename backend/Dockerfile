@@ -1,6 +1,11 @@
 FROM rust:1.59.0-slim AS builder
 WORKDIR /apps
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends pkg-config libssl-dev && \
+    apt-get -y clean && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY Cargo.toml Cargo.lock ./
 RUN mkdir /apps/src && \
     touch ./src/lib.rs && \
