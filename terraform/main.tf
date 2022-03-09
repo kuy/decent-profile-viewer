@@ -27,10 +27,12 @@ resource "google_storage_bucket" "tf-state" {
 variable "backend" {
   type = object({
     image_tag = string
+    visualizer_endpoint = string
   })
 
   default = {
     image_tag : "v3"
+    visualizer_endpoint = "http://localhost:18080"
   }
 }
 
@@ -44,6 +46,9 @@ resource "google_cloud_run_service" "profile-viewer-api" {
         image = "gcr.io/cropd-prj/profile-viewer-api:${var.backend.image_tag}"
         ports {
           container_port = 3000
+        }
+        env {
+          VISUALIZER_ENDPOINT = "${var.backend.visualizer_endpoint}"
         }
       }
       container_concurrency = 2
