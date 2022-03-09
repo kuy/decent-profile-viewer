@@ -48,6 +48,10 @@ resource "google_cloud_run_service" "profile-viewer-api" {
           container_port = 3000
         }
         env {
+          name = "RUST_LOG"
+          value = "debug"
+        }
+        env {
           name = "VISUALIZER_ENDPOINT"
           value = var.backend.visualizer_endpoint
         }
