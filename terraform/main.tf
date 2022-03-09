@@ -48,7 +48,8 @@ resource "google_cloud_run_service" "profile-viewer-api" {
           container_port = 3000
         }
         env {
-          VISUALIZER_ENDPOINT = "${var.backend.visualizer_endpoint}"
+          name = "VISUALIZER_ENDPOINT"
+          value = var.backend.visualizer_endpoint
         }
       }
       container_concurrency = 2
