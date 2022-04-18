@@ -8,7 +8,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "1.20.2",
+    "@playwright/test": "1.21.1",
     "wiremock-captain": "3.0.1"
   }
 }
