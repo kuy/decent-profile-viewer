@@ -22,7 +22,7 @@ jobs:
         with:
           credentials_json: "${{ secrets.gcp_creds }}"
 
-      - uses: hashicorp/setup-terraform@v1
+      - uses: hashicorp/setup-terraform@v2
 
       - name: Validate
         run: |
