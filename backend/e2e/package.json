@@ -9,6 +9,6 @@
   "license": "MIT",
   "devDependencies": {
     "@playwright/test": "1.23.1",
-    "wiremock-captain": "3.0.1"
+    "wiremock-captain": "3.1.1"
   }
 }
