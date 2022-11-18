@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = "0.5.12"
+axum = "0.5.17"
 futures = "0.3.24"
 reqwest = { version = "0.11.11", features = ["rustls-tls"] }
 serde = { version = "1.0.145", features = ["derive"] }
