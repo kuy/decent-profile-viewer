@@ -29,7 +29,7 @@ jobs:
           target: wasm32-unknown-unknown
           override: true
 
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
 
       - uses: actions/cache@v3
         with:
