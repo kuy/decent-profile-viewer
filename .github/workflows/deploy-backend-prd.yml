@@ -16,7 +16,7 @@ jobs:
         id: vars
         run: echo "::set-output name=ga_commit_sha::${GITHUB_SHA::8}"
 
-      - uses: "google-github-actions/setup-gcloud@v0"
+      - uses: "google-github-actions/setup-gcloud@v1"
 
       - name: Build and push to GCR
         uses: RafikFarhad/push-to-gcr-github-action@v4
