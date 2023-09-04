@@ -1,4 +1,4 @@
-FROM rust:1.71.0-slim AS builder
+FROM rust:1.72.0-slim AS builder
 WORKDIR /apps
 
 RUN apt-get update && \
