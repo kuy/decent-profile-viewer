@@ -6,7 +6,7 @@ license = "MIT"
 edition = "2021"
 
 [dependencies]
-gloo-utils = "0.1.7"
+gloo-utils = "0.2.0"
 include_dir = "0.7.3"
 log = "0.4.20"
 nom = "7.1.3"
