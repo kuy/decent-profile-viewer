@@ -47,7 +47,7 @@ jobs:
           cat terraform/prd.tfvars.json
 
       - name: Commit and push
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update to profile-viewer-api:${{ steps.vars.outputs.ga_commit_sha }} by GA"
           branch: infra-prd
